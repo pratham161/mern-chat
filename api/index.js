@@ -10,9 +10,8 @@ const Message = require('./models/Message');
 const ws = require('ws');
 const fs = require('fs');
 
-
 dotenv.config();
-mongoose.set('strictQuery',false)
+mongoose.set('strictQuery', true);
 mongoose.connect(process.env.MONGO_URL, (err) => {
   if (err) throw err;
 });
@@ -23,12 +22,10 @@ const app = express();
 app.use('/uploads', express.static(__dirname + '/uploads'));
 app.use(express.json());
 app.use(cookieParser());
-app.use(
-  cors({
-    origin: process.env.CLIENT_URL,
-    credentials: true,
-  })
-);
+app.use(cors({
+  credentials: true,
+  origin: process.env.CLIENT_URL,
+}));
 
 async function getUserDataFromRequest(req) {
   return new Promise((resolve, reject) => {
@@ -116,7 +113,7 @@ app.post('/register', async (req,res) => {
   }
 });
 
-const server = app.listen(4040,()=>console.log("server is tunning on port 4040"));
+const server = app.listen(4040);
 
 const wss = new ws.WebSocketServer({server});
 wss.on('connection', (connection, req) => {
@@ -173,7 +170,7 @@ wss.on('connection', (connection, req) => {
       const ext = parts[parts.length - 1];
       filename = Date.now() + '.'+ext;
       const path = __dirname + '/uploads/' + filename;
-      const bufferData = new Buffer.from(file.data.split(',')[1], 'base64');
+      const bufferData = new Buffer(file.data.split(',')[1], 'base64');
       fs.writeFile(path, bufferData, () => {
         console.log('file saved:'+path);
       });
